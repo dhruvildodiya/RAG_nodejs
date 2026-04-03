@@ -1,0 +1,43 @@
+Company Name: Zignuts Tech
+
+Refund Policy:
+We allow refunds within 7 days of purchase for digital products.
+To request a refund, users must contact support with their order ID.
+Refunds are processed within 3-5 business days after approval.
+
+Shipping Policy:
+We do not offer physical shipping as all products are digital.
+Access to products is provided instantly after successful payment.
+
+Payment Methods:
+We accept payments via credit cards, debit cards, UPI, and net banking.
+All payments are securely processed through Stripe.
+
+Support Information:
+Users can reach out to our support team via email at support@zignuts.com.
+Support hours are Monday to Friday, 10 AM to 6 PM IST.
+
+Account Management:
+Users can create an account using their email and password.
+Password reset functionality is available via the "Forgot Password" option.
+
+Subscription Plans:
+We offer monthly and yearly subscription plans.
+Subscriptions renew automatically unless cancelled by the user.
+
+Cancellation Policy:
+Users can cancel their subscription anytime from their account dashboard.
+No refunds are provided for partially used subscription periods.
+
+Data Privacy:
+We do not sell user data to third parties.
+All user data is stored securely and handled according to privacy regulations.
+
+API Usage:
+Our platform provides REST APIs for developers.
+API keys must be kept secure and should not be exposed publicly.
+Rate limits apply to all API endpoints.
+
+Error Handling:
+If a payment fails, users should retry using a different method.
+In case of repeated failures, users should contact support.
