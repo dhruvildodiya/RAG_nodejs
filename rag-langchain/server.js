@@ -33,8 +33,8 @@ try {
       }
     };
 
-    const response = await chain.call(
-        {query : question},
+    const response = await chain.invoke(
+        {question : question},
         {callbacks : [handler]}
     )
 

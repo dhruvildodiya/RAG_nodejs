@@ -1,0 +1,6 @@
+{
+  "watch": ["dist"],
+  "ext": "js,mjs,cjs,json",
+  "ignore": ["src", "node_modules"],
+  "exec": "node dist/server.js"
+}
