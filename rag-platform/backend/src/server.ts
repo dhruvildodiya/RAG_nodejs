@@ -7,8 +7,7 @@ const PORT = env.PORT || 5001;
 const HOST = "0.0.0.0"; // Listen on all interfaces
 
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
-  console.log(`🔗 Local access: http://localhost:${PORT}`);
+  console.log(`🚀 Server running on : https://rag-nodejs.onrender.com`);
 });
 const dbConnect = async () => {
   try {
