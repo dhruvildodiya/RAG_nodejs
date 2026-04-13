@@ -33,6 +33,8 @@ ${question}
         headers: {
           Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": "https://rag-nodejs.onrender.com",
+          "X-Title": "RAG Backend",
         },
       }
     );

@@ -8,7 +8,12 @@ export const retrieveRelatedChunks = async (
 ) => {
 try {
     // 1. Convert question to embedding
-    const queryEmbedding = await getEmbedding([query])
+    const queryEmbeddings = await getEmbedding([query])
+    const queryEmbedding = queryEmbeddings[0] // Extract single embedding
+    
+    if (!queryEmbedding) {
+        throw new Error("Failed to generate query embedding");
+    }
 
     // 2. Query database for similar embeddings
     const result = await pool.query(
@@ -17,7 +22,7 @@ try {
         WHERE user_id = $2
         ORDER BY embedding <=> $1::vector
         LIMIT 10`,
-        [JSON.stringify(queryEmbedding), userId]
+        [`[${queryEmbedding.join(',')}]`, userId]
     );
 
     // 3. Return the most similar chunks
