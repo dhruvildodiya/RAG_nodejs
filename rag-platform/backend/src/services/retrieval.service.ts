@@ -8,7 +8,7 @@ export const retrieveRelatedChunks = async (
 ) => {
 try {
     // 1. Convert question to embedding
-    const queryEmbedding = await getEmbedding(query)
+    const queryEmbedding = await getEmbedding([query])
 
     // 2. Query database for similar embeddings
     const result = await pool.query(

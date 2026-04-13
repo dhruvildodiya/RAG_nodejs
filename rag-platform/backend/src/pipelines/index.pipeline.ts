@@ -1,6 +1,6 @@
-import  {splitText} from "../services/chunk.service.js";
+import { splitText } from "../services/chunk.service.js";
 import { getEmbedding } from "../services/embedding.service.js";
-import  pool  from "../config/db.js";
+import pool from "../config/db.js";
 
 
 export const indexDocument = async (
@@ -10,29 +10,28 @@ export const indexDocument = async (
 ) => {
     try {
         console.log(`Starting indexing for user: ${userId}, source: ${source}`);
-        
+
         const chunks = await splitText(text);
         console.log(`Docs Chunked: ${chunks.length} chunks generated.`);
 
-        //loop through chunks
-        for (let i = 0; i < chunks.length; i++) {
-            const chunk = chunks[i];
-            const content = chunk!.pageContent;
+      
+        const contents = chunks.map((chunk) => chunk!.pageContent)
+        console.log("Contents:", contents);
+        const embeddings = await getEmbedding(contents)
 
-            console.log(`Processing chunk ${i + 1}/${chunks.length}...`);
+        const userIds = contents.map(() => userId);
+        const sources = contents.map(() => source);
 
-            //generate embedding
-            const embedding = await getEmbedding(content);
-            console.log(`Embedding Generated for chunk ${i + 1} (length: ${embedding.length})`);
-
-            //store in db
-            await pool.query(
-                `INSERT INTO documents (user_id, content, embedding, source)
-             VALUES ($1, $2, $3, $4)`,
-                [userId, content, JSON.stringify(embedding), source]
-            );
-            console.log(`Stored chunk ${i + 1} in database.`);
-        }
+        // Convert embeddings to proper vector format for PostgreSQL
+        const embeddingVectors = embeddings.map(embedding => `[${embedding.join(',')}]`);
+        
+        await pool.query(
+            `
+  INSERT INTO documents (user_id, content, embedding, source)
+  SELECT * FROM UNNEST ($1::text[], $2::text[], $3::vector[], $4::text[])
+  `,
+            [userIds, contents, embeddingVectors, sources]
+        );
 
         console.log("Indexing completed successfully.");
         return {

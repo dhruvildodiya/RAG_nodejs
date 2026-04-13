@@ -1,14 +1,14 @@
 import axios from "axios";
 import { env } from "../config/env.js";
 
-export const getEmbedding = async (text: string): Promise<number[]> => {
+export const getEmbedding = async (texts: string[]): Promise<number[][]> => {
     try {
-        console.log("Generating embedding for text of length:", text.length);
+        console.log("Generating embeddings for", texts.length, "texts");
         const response = await axios.post(
             "https://openrouter.ai/api/v1/embeddings",
             {
                 model: "openai/text-embedding-3-small",
-                input: text
+                input: texts
             },
             {
                 headers: {
@@ -19,8 +19,11 @@ export const getEmbedding = async (text: string): Promise<number[]> => {
                 },
             }
         )
-        const embedding = response.data.data[0].embedding;
-        return embedding;
+        const embeddings = response.data.data.map((item: any) => item.embedding);
+
+        
+        console.log(`Generated ${embeddings.length} embeddings`);
+        return embeddings;
     } catch (error: any) {
 
         const errorData = error.response?.data;
