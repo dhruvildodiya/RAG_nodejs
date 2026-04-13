@@ -6,7 +6,11 @@ import askRoutes from "./routes/ask.route.js";
 const app = express();
 
 app.use(cors({
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+  origin: [
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "https://rag-platform-blond.vercel.app"
+  ],
   credentials: true
 }));
 

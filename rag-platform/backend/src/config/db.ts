@@ -8,6 +8,9 @@ export const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  max: 20, // Maximum number of connections in the pool
+  idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
+  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
 });
 
 pool.on("connect", () => {
