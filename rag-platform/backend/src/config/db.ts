@@ -2,8 +2,12 @@ import pkg from "pg";
 const { Pool } = pkg;
 import { env } from "./env.js";
 
-const pool = new Pool({
+
+export const pool = new Pool({
   connectionString: env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 pool.on("connect", () => {
