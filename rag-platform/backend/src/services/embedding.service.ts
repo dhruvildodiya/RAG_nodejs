@@ -14,7 +14,7 @@ export const getEmbedding = async (text: string): Promise<number[]> => {
                 headers: {
                     Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
                     "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:5001", // Required for some OpenRouter environments
+                    "HTTP-Referer": "https://rag-nodejs.onrender.com", // Required for some OpenRouter environments
                     "X-Title": "RAG Backend", // Optional but recommended
                 },
             }
