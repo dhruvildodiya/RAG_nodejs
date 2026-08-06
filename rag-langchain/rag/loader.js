@@ -1,11 +1,14 @@
-import fs from 'fs';
+import { TextLoader } from "langchain/document_loaders/fs/text";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 export async function loadDocs() {
-  const text = fs.readFileSync('./data/docs.txt', 'utf-8');
+  const loader = new TextLoader("./data/docs.txt");
+  const rawDocs = await loader.load();
 
-  return text.split('\n\n').map((chunk,i) =>({
-    pageContent: chunk,
-    metadata: { id: `doc-${i}` }
-  }));
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 300,
+    chunkOverlap: 50,
+  });
 
+  return await splitter.splitDocuments(rawDocs);
 }
