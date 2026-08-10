@@ -25,10 +25,11 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Mobile Menu Toggle */}
+      {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2.5 rounded-xl neu-btn-secondary text-slate-300 shadow-md"
+        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-xl neu-btn-secondary text-slate-300 shadow-md border border-[#2a354c]"
+        aria-label="Toggle Menu"
       >
         {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -41,14 +42,14 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-950/80 z-40 lg:hidden"
+            className="fixed inset-0 bg-slate-950/80 z-40 lg:hidden backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:relative w-80 h-full bg-[#181f2e] border-r border-[#222b3e] flex flex-col p-5 z-50 lg:z-10 shrink-0 transition-transform duration-200 ${
+        className={`fixed lg:relative top-0 left-0 bottom-0 w-80 max-w-[85vw] h-full bg-[#181f2e] border-r border-[#222b3e] flex flex-col p-5 z-50 lg:z-10 shrink-0 transition-transform duration-200 ease-in-out ${
           isDesktop || isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
