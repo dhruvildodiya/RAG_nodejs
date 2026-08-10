@@ -193,7 +193,7 @@ export function ChatArea({
                   />
                 ))}
               </div>
-              <span className="text-xs text-slate-400 font-mono">Searching vector index & querying LLM...</span>
+              <span className="text-xs text-slate-400 font-mono">Generating Response...</span>
             </div>
           </div>
         )}
