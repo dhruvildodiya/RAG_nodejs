@@ -6,7 +6,7 @@ import { Database, Menu, X, Sparkles } from "lucide-react";
 
 export function DashboardContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#151a26] text-slate-100 relative font-sans">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#151a26] text-slate-800 dark:text-slate-100 relative font-sans transition-colors duration-200">
       {children}
     </div>
   );
@@ -28,7 +28,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-xl neu-btn-secondary text-slate-300 shadow-md border border-[#2a354c]"
+        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-xl neu-btn-secondary text-slate-700 dark:text-slate-300 shadow-md border border-slate-200 dark:border-[#2a354c]"
         aria-label="Toggle Menu"
       >
         {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -42,28 +42,28 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-950/80 z-40 lg:hidden backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 z-40 lg:hidden backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:relative top-0 left-0 bottom-0 w-80 max-w-[85vw] h-full bg-[#181f2e] border-r border-[#222b3e] flex flex-col p-5 z-50 lg:z-10 shrink-0 transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:relative top-0 left-0 bottom-0 w-80 max-w-[85vw] h-full bg-white dark:bg-[#181f2e] border-r border-slate-200 dark:border-[#222b3e] flex flex-col p-5 z-50 lg:z-10 shrink-0 transition-transform duration-200 ease-in-out ${
           isDesktop || isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Brand Header */}
-        <div className="mb-5 pb-4 border-b border-[#222b3e] flex items-center justify-between">
+        <div className="mb-5 pb-4 border-b border-slate-200 dark:border-[#222b3e] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl neu-pressed flex items-center justify-center text-blue-400">
+            <div className="w-9 h-9 rounded-xl neu-pressed flex items-center justify-center text-blue-600 dark:text-blue-400">
               <Sparkles className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-100">
+              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 Knowledge Ingestion
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 Vector Knowledge Base
               </p>
             </div>
@@ -76,17 +76,17 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Footer Database Status Card */}
-        <div className="mt-auto pt-4 border-t border-[#222b3e]">
+        <div className="mt-auto pt-4 border-t border-slate-200 dark:border-[#222b3e]">
           <div className="rounded-xl p-3.5 neu-pressed space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                 <span>Vector Index Active</span>
               </div>
-              <span className="text-[10px] text-slate-500 font-mono">user1</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">user1</span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-              <Database className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px]">
+              <Database className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>PostgreSQL + pgvector</span>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
 
 export function MainCanvas({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex-1 flex flex-col h-full overflow-hidden z-10 bg-[#151a26]">
+    <main className="flex-1 flex flex-col h-full overflow-hidden z-10 bg-slate-100 dark:bg-[#151a26] transition-colors duration-200">
       {children}
     </main>
   );

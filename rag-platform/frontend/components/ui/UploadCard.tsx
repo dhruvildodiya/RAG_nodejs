@@ -67,7 +67,7 @@ export function UploadCard({
             "py-2 px-3 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer",
             ingestMode === "file"
               ? "neu-btn-primary text-white shadow-sm"
-              : "text-slate-400 hover:text-slate-200"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
           )}
         >
           <Upload className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export function UploadCard({
             "py-2 px-3 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer",
             ingestMode === "text"
               ? "neu-btn-primary text-white shadow-sm"
-              : "text-slate-400 hover:text-slate-200"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
           )}
         >
           <FileCode className="w-3.5 h-3.5" />
@@ -93,23 +93,23 @@ export function UploadCard({
           {...getRootProps()}
           className={cn(
             "border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all neu-flat",
-            isDragActive && isDragAccept && "border-blue-500 bg-blue-950/20",
-            isDragActive && isDragReject && "border-rose-500 bg-rose-950/20",
-            !isDragActive && "border-[#283348] hover:border-blue-500/60",
-            selectedFile && "border-blue-500/60 bg-blue-950/20"
+            isDragActive && isDragAccept && "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20",
+            isDragActive && isDragReject && "border-rose-500 bg-rose-50/50 dark:bg-rose-950/20",
+            !isDragActive && "border-slate-300 dark:border-[#283348] hover:border-blue-500/60",
+            selectedFile && "border-blue-500/60 bg-blue-50/30 dark:bg-blue-950/20"
           )}
         >
           <input {...getInputProps()} />
 
           {selectedFile ? (
             <div className="flex flex-col items-center text-center w-full">
-              <div className="w-11 h-11 rounded-xl neu-pressed flex items-center justify-center mb-2.5 text-blue-400">
+              <div className="w-11 h-11 rounded-xl neu-pressed flex items-center justify-center mb-2.5 text-blue-600 dark:text-blue-400">
                 <FileText className="w-5.5 h-5.5" />
               </div>
-              <p className="text-xs font-bold text-slate-100 truncate max-w-[200px]">
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate max-w-[200px]">
                 {selectedFile.name}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5 font-mono">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-mono">
                 {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
               </p>
               <button
@@ -118,7 +118,7 @@ export function UploadCard({
                   e.stopPropagation();
                   onFileSelect(null);
                 }}
-                className="mt-3 px-3 py-1 text-[11px] font-bold text-rose-400 neu-btn-secondary rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                className="mt-3 px-3 py-1 text-[11px] font-bold text-rose-600 dark:text-rose-400 neu-btn-secondary rounded-lg flex items-center gap-1 transition-all cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Remove file</span>
@@ -126,16 +126,16 @@ export function UploadCard({
             </div>
           ) : (
             <div className="flex flex-col items-center text-center">
-              <div className="w-11 h-11 rounded-xl neu-pressed flex items-center justify-center mb-2.5 text-blue-400">
+              <div className="w-11 h-11 rounded-xl neu-pressed flex items-center justify-center mb-2.5 text-blue-600 dark:text-blue-400">
                 <Upload className="w-5.5 h-5.5" />
               </div>
-              <p className="text-xs font-bold text-slate-200">
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Drag & drop document
               </p>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                 or click to browse file
               </p>
-              <div className="mt-3.5 px-3 py-1 rounded-lg neu-pressed text-[10px] font-mono text-slate-400 flex items-center gap-1.5">
+              <div className="mt-3.5 px-3 py-1 rounded-lg neu-pressed text-[10px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <span>PDF • DOCX • TXT</span>
                 <span>Max 10MB</span>
               </div>
@@ -147,7 +147,7 @@ export function UploadCard({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Paste raw text or documentation to index into vector database..."
-          className="w-full h-44 neu-pressed rounded-xl p-3.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all resize-none font-mono"
+          className="w-full h-44 neu-pressed rounded-xl p-3.5 text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all resize-none font-mono"
         />
       )}
 
@@ -156,7 +156,7 @@ export function UploadCard({
         type="button"
         onClick={() => onUpload(value, selectedFile)}
         disabled={loading || (!value && !selectedFile)}
-        className="neu-btn-primary w-full py-3 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        className="neu-btn-primary w-full py-3 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
       >
         {loading ? (
           <>

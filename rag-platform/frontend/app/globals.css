@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -11,6 +13,25 @@
 }
 
 :root {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --border: #e2e8f0;
+  --input: #f8fafc;
+  --ring: #2563eb;
+  
+  --neu-dark: #cbd5e1;
+  --neu-light: #ffffff;
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+}
+
+html.dark {
   --background: #151a26;
   --foreground: #f8fafc;
   
@@ -23,10 +44,6 @@
   
   --neu-dark: #0d1018;
   --neu-light: #232c3e;
-  
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
 }
 
 body {
@@ -35,42 +52,43 @@ body {
   font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Neumorphic Soft UI Utilities */
+/* Light Mode Neumorphic Soft UI Utilities */
 .neu-flat {
-  background: #181f2e;
-  box-shadow: 4px 4px 10px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: #ffffff;
+  box-shadow: 4px 4px 10px #e0e6ed, -3px -3px 8px #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
 .neu-pressed {
-  background: #121622;
-  box-shadow: inset 3px 3px 6px #090c13, inset -2px -2px 4px rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #f8fafc;
+  box-shadow: inset 3px 3px 6px #e2e8f0, inset -2px -2px 4px #ffffff;
+  border: 1px solid #cbd5e1;
 }
 
 .neu-card {
-  background: #181f2e;
-  box-shadow: 4px 4px 12px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: #ffffff;
+  box-shadow: 4px 4px 12px #e0e6ed, -3px -3px 8px #ffffff;
+  border: 1px solid #e2e8f0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .neu-card:hover {
-  box-shadow: 6px 6px 16px #090c13, -3px -3px 8px rgba(255, 255, 255, 0.06);
+  box-shadow: 6px 6px 16px #cbd5e1, -3px -3px 8px #ffffff;
   transform: translateY(-1px);
 }
 
 .neu-btn-primary {
   background: linear-gradient(145deg, #2563eb, #1d4ed8);
-  box-shadow: 3px 3px 8px #090c13, -2px -2px 5px rgba(255, 255, 255, 0.05);
+  box-shadow: 3px 3px 8px #cbd5e1, -2px -2px 5px #ffffff;
   transition: all 0.15s ease;
 }
 
 .neu-btn-primary:hover {
   background: linear-gradient(145deg, #3b82f6, #2563eb);
-  box-shadow: 4px 4px 10px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.07);
+  box-shadow: 4px 4px 10px #cbd5e1, -2px -2px 6px #ffffff;
 }
 
 .neu-btn-primary:active {
@@ -78,16 +96,62 @@ body {
 }
 
 .neu-btn-secondary {
-  background: #181f2e;
-  box-shadow: 3px 3px 8px #090c13, -2px -2px 5px rgba(255, 255, 255, 0.04);
+  background: #ffffff;
+  box-shadow: 3px 3px 8px #e0e6ed, -2px -2px 5px #ffffff;
+  border: 1px solid #e2e8f0;
   transition: all 0.15s ease;
 }
 
 .neu-btn-secondary:hover {
-  background: #1c2436;
+  background: #f8fafc;
 }
 
 .neu-btn-secondary:active {
+  box-shadow: inset 2px 2px 4px #e2e8f0, inset -2px -2px 4px #ffffff;
+}
+
+/* Dark Mode Neumorphic Soft UI Overrides */
+html.dark .neu-flat {
+  background: #181f2e;
+  box-shadow: 4px 4px 10px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+html.dark .neu-pressed {
+  background: #121622;
+  box-shadow: inset 3px 3px 6px #090c13, inset -2px -2px 4px rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+html.dark .neu-card {
+  background: #181f2e;
+  box-shadow: 4px 4px 12px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+html.dark .neu-card:hover {
+  box-shadow: 6px 6px 16px #090c13, -3px -3px 8px rgba(255, 255, 255, 0.06);
+}
+
+html.dark .neu-btn-primary {
+  box-shadow: 3px 3px 8px #090c13, -2px -2px 5px rgba(255, 255, 255, 0.05);
+}
+
+html.dark .neu-btn-primary:hover {
+  box-shadow: 4px 4px 10px #090c13, -2px -2px 6px rgba(255, 255, 255, 0.07);
+}
+
+html.dark .neu-btn-secondary {
+  background: #181f2e;
+  box-shadow: 3px 3px 8px #090c13, -2px -2px 5px rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+html.dark .neu-btn-secondary:hover {
+  background: #1c2436;
+}
+
+html.dark .neu-btn-secondary:active {
   box-shadow: inset 2px 2px 4px #090c13, inset -2px -2px 4px rgba(255, 255, 255, 0.04);
 }
 
@@ -102,16 +166,28 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #283348;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #283348;
+}
+
 ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
   background: #3b4b6a;
 }
 
 * {
   scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+html.dark * {
   scrollbar-color: #283348 transparent;
 }
 
@@ -138,9 +214,15 @@ body {
 }
 
 .prose-dark code {
-  background: #121622;
+  background: #e2e8f0;
+  color: #1e293b;
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
   font-family: var(--font-mono);
   font-size: 0.85em;
+}
+
+html.dark .prose-dark code {
+  background: #121622;
+  color: #f8fafc;
 }
