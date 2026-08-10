@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import cors from "cors";
 import uploadRoutes from "./routes/upload.route.js";
 import askRoutes from "./routes/ask.route.js";
+import documentRoutes from "./routes/documents.route.js";
 const app = express();
 
 app.use(cors({
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 
 app.use("/api", uploadRoutes);
 app.use("/api", askRoutes);
+app.use("/api", documentRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("API running 🚀");

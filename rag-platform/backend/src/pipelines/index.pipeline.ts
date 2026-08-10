@@ -11,6 +11,10 @@ export const indexDocument = async (
     try {
         console.log(`Starting indexing for user: ${userId}, source: ${source}`);
 
+        if (!text || text.trim().length === 0) {
+            throw new Error("Cannot index document with empty text.");
+        }
+
         const chunks = await splitText(text);
         console.log(`Docs Chunked: ${chunks.length} chunks generated.`);
 

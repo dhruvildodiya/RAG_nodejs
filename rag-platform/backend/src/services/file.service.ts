@@ -10,9 +10,25 @@ export const extractTextFromFile = async (
 
   //  PDF
   if (mimetype === "application/pdf") {
-    const parser = new PDFParse({ data: file.buffer });
-    const result = await parser.getText();
-    return result.text;
+    try {
+      const parser = new (PDFParse as any)({ data: file.buffer });
+      if (typeof parser.load === "function") {
+        await parser.load();
+      }
+      const result = await parser.getText();
+      // Remove page header/footer markers like '-- 1 of 2 --'
+      const rawText = (result?.text || "").replace(/-- \d+ of \d+ --/g, "").trim();
+      console.log(`PDF text extraction completed. Clean text length: ${rawText.length}`);
+      if (!rawText) {
+        throw new Error(
+          "This PDF appears to be an image-based or graphic document without embedded text streams (0 text items found)."
+        );
+      }
+      return rawText;
+    } catch (err: any) {
+      console.error("Error in PDF extraction:", err.message || err);
+      throw new Error(`Failed to extract text from PDF: ${err.message || err}`);
+    }
   }
 
   //  DOCX

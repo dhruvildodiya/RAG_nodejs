@@ -13,8 +13,9 @@ app.listen(PORT, HOST, () => {
 });
 const dbConnect = async () => {
   try {
-    await pool.connect();
-    console.log("Database connected");
+    const client = await pool.connect();
+    console.log("Database connected ✅");
+    client.release();
   } catch (error) {
     console.error("Database connection error ❌", error);
   }

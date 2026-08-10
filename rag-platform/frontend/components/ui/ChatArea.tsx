@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, User, Bot, Sparkles, Loader2, Mic, Paperclip, MoreVertical, Library, ExternalLink } from "lucide-react";
+import { Send, User, Bot, Sparkles, Library, ExternalLink, Copy, Check, Trash2 } from "lucide-react";
+import { SourceModal } from "./SourceModal";
 
 interface Message {
   role: "user" | "assistant";
@@ -15,6 +16,7 @@ interface ChatAreaProps {
   input: string;
   onInputChange: (val: string) => void;
   onSend: () => void;
+  onClearChat?: () => void;
   loading: boolean;
 }
 
@@ -23,47 +25,62 @@ export function ChatArea({
   input,
   onInputChange,
   onSend,
+  onClearChat,
   loading,
 }: ChatAreaProps) {
-  const [isTyping, setIsTyping] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(messages.length === 0);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [selectedSources, setSelectedSources] = useState<string[] | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const suggestions = [
-    "What are the key findings in my documents?",
-    "Summarize the main topics covered",
-    "What data sources were used?",
-    "Find information about specific topics"
+    "What are the key findings in my uploaded documents?",
+    "Summarize the main topics covered in the knowledge base",
+    "List all technical requirements mentioned in the texts",
+    "Find specific metrics or data points from my documents"
   ];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  useEffect(() => {
-    setShowSuggestions(messages.length === 0);
-  }, [messages]);
-
-  const handleInputChange = (value: string) => {
-    onInputChange(value);
-    setIsTyping(value.length > 0);
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    onInputChange(suggestion);
-    inputRef.current?.focus();
+  const handleCopy = (content: string, index: number) => {
+    navigator.clipboard.writeText(content);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-6 pb-20 scroll-smooth pr-4 bg-transparent">
+    <div className="flex flex-col h-full relative">
+      {/* Top Action Bar for Chat */}
+      {messages.length > 0 && (
+        <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-800/80">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span>Active Chat Session</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-500">{messages.length} messages</span>
+          </div>
+          {onClearChat && (
+            <button
+              onClick={onClearChat}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Conversation
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Messages Scroll View */}
+      <div className="flex-1 overflow-y-auto space-y-6 pb-20 scroll-smooth pr-2 bg-transparent">
         <AnimatePresence initial={false}>
           {messages.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="h-full flex flex-col items-center justify-center text-slate-500 space-y-8"
+              className="h-full flex flex-col items-center justify-center text-slate-500 space-y-8 py-10"
             >
               <motion.div
                 animate={{
@@ -75,145 +92,108 @@ export function ChatArea({
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl premium-gradient flex items-center justify-center border border-white/20 backdrop-blur-md shadow-2xl"
+                className="w-20 h-20 rounded-3xl premium-gradient flex items-center justify-center border border-white/20 shadow-2xl shadow-blue-500/20"
               >
-                <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
+                <Sparkles className="w-10 h-10 text-white" />
               </motion.div>
 
-              <div className="text-center space-y-3 sm:space-y-4">
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2"
-                >
-                  Welcome to RAG Platform
-                </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-sm sm:text-base text-slate-300 max-w-lg leading-relaxed px-4"
-                >
-                  Ask anything about your knowledge base. I'll search through your documents to find the most relevant information using advanced AI.
-                </motion.p>
-
+              <div className="text-center space-y-2 max-w-md px-4">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+                  Intelligent Knowledge Assistant
+                </h2>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Query your indexed documents in real-time. Ask questions, extract summaries, and trace exact citations.
+                </p>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="w-full max-w-2xl"
-              >
-                <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 text-center font-medium">Popular Questions</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="w-full max-w-xl px-4">
+                <p className="text-xs font-semibold text-slate-400 mb-3 text-center uppercase tracking-wider">Suggested Queries</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {suggestions.map((suggestion, index) => (
                     <motion.button
                       key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4 text-left text-xs sm:text-sm text-slate-300 hover:border-blue-500/30 hover:bg-blue-500/10 transition-all group"
+                      onClick={() => {
+                        onInputChange(suggestion);
+                        inputRef.current?.focus();
+                      }}
+                      className="glass-card rounded-xl p-3 text-left text-xs text-slate-300 hover:border-blue-500/40 hover:text-white transition-all group border border-slate-800"
                     >
-                      <div className="flex items-start gap-2 sm:gap-3">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                          className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-400 mt-1 sm:mt-1.5 shrink-0"
-                        />
-                        <span className="group-hover:text-blue-400 transition-colors leading-relaxed text-xs sm:text-sm">{suggestion}</span>
+                      <div className="flex items-start gap-2.5">
+                        <Sparkles className="w-4 h-4 text-blue-400 shrink-0 mt-0.5 group-hover:text-cyan-300 transition-colors" />
+                        <span className="leading-snug">{suggestion}</span>
                       </div>
                     </motion.button>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           ) : (
             messages.map((msg, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 25,
-                  delay: i * 0.1
-                }}
-                className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className={`flex gap-3 md:gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {msg.role === "assistant" && (
-                  <motion.div
-                    initial={{ rotate: -180, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
-                    className="w-10 h-10 rounded-xl premium-gradient flex items-center justify-center shrink-0 shadow-lg"
-                  >
-                    <Bot className="w-6 h-6 text-white" />
-                  </motion.div>
+                  <div className="w-9 h-9 rounded-xl premium-gradient flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20 mt-1">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
                 )}
 
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className={`max-w-[85%] rounded-2xl px-6 py-4 text-sm leading-relaxed relative group ${msg.role === "user"
-                    ? "bg-linear-to-br from-blue-600 to-blue-500 text-white shadow-lg"
-                    : "glass-card text-slate-200 border border-blue-500/20"
-                    }`}
+                <div
+                  className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed relative group ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 text-white shadow-lg shadow-blue-600/20"
+                      : "glass-card text-slate-200 border border-slate-800/80 hover:border-blue-500/30"
+                  }`}
                 >
+                  <p className="whitespace-pre-line font-normal text-sm leading-relaxed">{msg.content}</p>
+
+                  {/* Actions Bar for Assistant Message */}
                   {msg.role === "assistant" && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  )}
-                  <p className="whitespace-pre-line font-medium mb-3">{msg.content}</p>
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-800/80">
+                      {msg.sources && msg.sources.length > 0 ? (
+                        <button
+                          onClick={() => setSelectedSources(msg.sources || null)}
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-300 hover:bg-blue-500/20 transition-all"
+                        >
+                          <Library className="w-3.5 h-3.5 text-blue-400" />
+                          <span>{msg.sources.length} Source Citation{msg.sources.length > 1 ? "s" : ""}</span>
+                          <ExternalLink className="w-3 h-3 text-blue-400" />
+                        </button>
+                      ) : (
+                        <div />
+                      )}
 
-                  {msg.role === "assistant" && msg.sources && msg.sources.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="mt-4 pt-4 border-t border-blue-500/20"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Library className="w-3.5 h-3.5 text-blue-400" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400/80">Sources used</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {msg.sources.map((source, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[10px] text-slate-300 font-medium hover:bg-blue-500/20 hover:border-blue-500/30 transition-all cursor-default"
-                          >
-                            <ExternalLink className="w-2.5 h-2.5 text-blue-400" />
-                            {source}
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
+                      <button
+                        onClick={() => handleCopy(msg.content, i)}
+                        className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 transition-colors px-2 py-1 rounded hover:bg-slate-800/50"
+                        title="Copy text"
+                      >
+                        {copiedIndex === i ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400 font-medium">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
-
-                  <motion.div
-                    className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-current opacity-30 scale-x-0 group-hover:scale-x-100 transition-transform origin-center rounded-full"
-                  />
-                </motion.div>
+                </div>
 
                 {msg.role === "user" && (
-                  <motion.div
-                    initial={{ rotate: 180, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
-                    className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700 group-hover:border-blue-500/30 transition-all"
-                  >
-                    <User className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                  </motion.div>
+                  <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700 mt-1">
+                    <User className="w-5 h-5 text-slate-300" />
+                  </div>
                 )}
               </motion.div>
             ))
@@ -222,107 +202,67 @@ export function ChatArea({
 
         {loading && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex gap-4"
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-10 h-10 rounded-xl premium-gradient flex items-center justify-center shrink-0 shadow-lg"
-            >
-              <Bot className="w-6 h-6 text-white" />
-            </motion.div>
-            <motion.div
-              className="glass-card rounded-2xl px-6 py-4 flex items-center gap-4 border border-blue-500/20"
-              animate={{
-                scale: [1, 1.02, 1],
-                opacity: [0.9, 1, 0.9]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
-              <div className="flex gap-2">
+            <div className="w-9 h-9 rounded-xl premium-gradient flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <div className="glass-card rounded-2xl px-5 py-3.5 flex items-center gap-3 border border-slate-800">
+              <div className="flex gap-1.5">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-2.5 h-2.5 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50"
+                    className="w-2 h-2 rounded-full bg-blue-400"
                     animate={{
-                      scale: [1, 1.5, 1],
-                      opacity: [0.6, 1, 0.6],
-                      y: [0, -3, 0]
+                      scale: [1, 1.4, 1],
+                      opacity: [0.4, 1, 0.4]
                     }}
                     transition={{
-                      duration: 1.2,
+                      duration: 1,
                       repeat: Infinity,
-                      delay: i * 0.15,
-                      ease: "easeInOut"
+                      delay: i * 0.2
                     }}
                   />
                 ))}
               </div>
-              <span className="text-sm text-slate-300 font-medium">AI is thinking...</span>
-            </motion.div>
+              <span className="text-xs text-slate-400 font-medium">Searching knowledge base...</span>
+            </div>
           </motion.div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="relative mt-auto">
-
-        <motion.div
-          className="glass-card flex gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-2xl border border-blue-500/20"
-          animate={{
-            scale: isTyping ? [1, 1.01, 1] : 1,
-          }}
-          transition={{ duration: 0.3 }}
-        >
+      {/* Chat Input Container */}
+      <div className="mt-auto pt-2">
+        <div className="glass-card flex items-center gap-2 p-2 rounded-2xl border border-slate-800 focus-within:border-blue-500/50 transition-all shadow-xl">
           <input
             ref={inputRef}
             value={input}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSend()}
-            placeholder="Ask anything about your knowledge base..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-3 outline-none placeholder:text-slate-500 font-medium"
+            placeholder="Type your question..."
+            className="flex-1 bg-transparent border-none outline-none text-sm px-3 py-2 text-slate-200 placeholder:text-slate-500"
           />
 
-          <motion.button
+          <button
             onClick={onSend}
             disabled={loading || !input.trim()}
-            className="premium-gradient p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
-            whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(102, 126, 234, 0.3)" }}
-            whileTap={{ scale: 0.95 }}
+            className="premium-gradient p-3 rounded-xl transition-all shadow-lg disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shrink-0"
           >
-            <motion.div
-              className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: "100%" }}
-              transition={{ duration: 0.6 }}
-            />
-            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10" />
-          </motion.button>
-        </motion.div>
-
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 mt-3 sm:mt-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50" />
-            <span className="text-[10px] sm:text-xs text-emerald-400 font-medium hidden xs:inline">System Active</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-[10px] sm:text-xs text-slate-500 hidden xs:inline">RAG Platform</span>
-            <div className="w-1 h-1 rounded-full bg-slate-600 hidden xs:inline" />
-            <span className="text-[10px] sm:text-xs text-blue-400 font-mono hidden xs:inline">v2.0</span>
-          </div>
-        </motion.div>
+            <Send className="w-4 h-4 text-white" />
+          </button>
+        </div>
       </div>
+
+      {/* Source Citation Modal */}
+      <SourceModal
+        isOpen={selectedSources !== null}
+        onClose={() => setSelectedSources(null)}
+        sources={selectedSources || []}
+      />
     </div>
   );
 }
+
