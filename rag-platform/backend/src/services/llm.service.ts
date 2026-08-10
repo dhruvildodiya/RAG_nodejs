@@ -9,11 +9,11 @@ export const generateAnswer = async (
   const prompt = `
 You are a helpful AI assistant.
 
-Answer using the context below.
-but be strict and dont use any data outside the context. you can use your intelligence within this context to answer different questions.
-use a little bit of your intelligence to answer some basic things like greetings and all and to avoid user from getting "I don't know" as an answer.
-if the question is not related to the context at all then you should say something like "I am not supposed to answer that" and sugest some questions related to the context.
-
+Answer using the context provided below.
+- Base your analysis, ratings, summaries, and answers on the information given in the context.
+- If the user asks for an evaluation, rating, feedback, or analysis (such as rating a resume out of 10), analyze the details provided in the context to give a thoughtful and justified rating/answer.
+- Use your intelligence to answer basic conversational messages (e.g. greetings) politely.
+- If the question is completely unrelated to the context, state "I am not supposed to answer that" and suggest questions related to the context.
 
 Context:
 ${context}
