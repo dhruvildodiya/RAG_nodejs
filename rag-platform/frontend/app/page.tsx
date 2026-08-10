@@ -174,13 +174,13 @@ export default function Home() {
             <AnimatePresence>
               {toastMessage && (
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="absolute top-4 right-8 z-50 px-4 py-2.5 rounded-xl glass-card border border-blue-500/30 text-xs font-semibold text-blue-200 shadow-2xl flex items-center gap-2"
+                  initial={{ opacity: 0, y: -15, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -15, scale: 0.95 }}
+                  className="absolute top-4 right-6 z-50 px-4 py-2.5 rounded-xl bg-slate-900/90 border border-indigo-500/40 text-xs font-semibold text-indigo-200 shadow-2xl backdrop-blur-xl flex items-center gap-2.5"
                 >
-                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-                  {toastMessage}
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+                  <span>{toastMessage}</span>
                 </motion.div>
               )}
             </AnimatePresence>
