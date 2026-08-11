@@ -4,7 +4,9 @@ import { getEmbedding } from "./embedding.service.js";
 
 export const retrieveRelatedChunks = async (
     query: string,
-    userId: string
+    userId: string,
+    scope: "individual" | "org" = "individual",
+    organizationId?: string | null
 ) => {
 try {
     // 1. Convert question to embedding
@@ -15,15 +17,24 @@ try {
         throw new Error("Failed to generate query embedding");
     }
 
-    // 2. Query database for similar embeddings
-    const result = await pool.query(
-        `SELECT content, source, 1 - (embedding <=> $1::vector) AS score
-        FROM documents
-        WHERE user_id = $2
-        ORDER BY embedding <=> $1::vector
-        LIMIT 10`,
-        [`[${queryEmbedding.join(',')}]`, userId]
-    );
+    // 2. Query database for similar embeddings based on scope
+    const isOrgMode = scope === "org" && Boolean(organizationId);
+    
+    const sqlQuery = isOrgMode
+      ? `SELECT content, source, 1 - (embedding <=> $1::vector) AS score
+         FROM documents
+         WHERE organization_id = $2 AND visibility = 'org'
+         ORDER BY embedding <=> $1::vector
+         LIMIT 10`
+      : `SELECT content, source, 1 - (embedding <=> $1::vector) AS score
+         FROM documents
+         WHERE user_id = $2 AND (visibility = 'private' OR visibility IS NULL)
+         ORDER BY embedding <=> $1::vector
+         LIMIT 10`;
+
+    const targetId = isOrgMode ? organizationId : userId;
+
+    const result = await pool.query(sqlQuery, [`[${queryEmbedding.join(',')}]`, targetId]);
 
     // 3. Return the most similar chunks
     return result.rows.map((row) => ({

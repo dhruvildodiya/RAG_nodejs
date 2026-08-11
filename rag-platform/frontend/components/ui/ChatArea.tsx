@@ -1,8 +1,15 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
-import { Send, User, Bot, Sparkles, Library, ExternalLink, Copy, Check, Trash2 } from "lucide-react";
+import { Send, User, Bot, Sparkles, Library, ExternalLink, Copy, Check, Trash2, History, Plus, MessageSquare } from "lucide-react";
 import { SourceModal } from "./SourceModal";
+
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+export interface ConversationItem {
+  id: string;
+  title: string;
+  updated_at: string;
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -17,6 +24,11 @@ interface ChatAreaProps {
   onSend: () => void;
   onClearChat?: () => void;
   loading: boolean;
+  conversations?: ConversationItem[];
+  activeConversationId?: string | null;
+  onSelectConversation?: (id: string) => void;
+  onNewChat?: () => void;
+  onDeleteConversation?: (id: string) => void;
 }
 
 export function ChatArea({
@@ -26,11 +38,18 @@ export function ChatArea({
   onSend,
   onClearChat,
   loading,
+  conversations = [],
+  activeConversationId = null,
+  onSelectConversation,
+  onNewChat,
+  onDeleteConversation,
 }: ChatAreaProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [selectedSources, setSelectedSources] = useState<string[] | null>(null);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const suggestions = [
     "What is Zignuts and what services do they offer?",
@@ -43,6 +62,23 @@ export function ChatArea({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  // Click outside listener for Past Sessions dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowHistoryDropdown(false);
+      }
+    };
+
+    if (showHistoryDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showHistoryDropdown]);
+
   const handleCopy = (content: string, index: number) => {
     navigator.clipboard.writeText(content);
     setCopiedIndex(index);
@@ -52,25 +88,80 @@ export function ChatArea({
   return (
     <div className="flex flex-col h-full relative px-2 md:px-6 py-4 bg-slate-100 dark:bg-[#151a26] transition-colors duration-200">
       {/* Top Header Session Controls */}
-      {messages.length > 0 && (
-        <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200 dark:border-[#222b3e]">
-          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm" />
-            <span>Active Knowledge Session</span>
-            <span>•</span>
-            <span className="text-slate-400 dark:text-slate-500">{messages.length} messages</span>
-          </div>
-          {onClearChat && (
+      <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200 dark:border-[#222b3e] gap-2">
+        <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+          <button
+            onClick={onNewChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl neu-btn-primary text-white text-xs font-bold shadow-sm cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Chat</span>
+          </button>
+
+          {/* Past Sessions History Dropdown */}
+          <div className="relative" ref={dropdownRef}>
             <button
-              onClick={onClearChat}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg neu-btn-secondary text-xs text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer"
+              onClick={() => setShowHistoryDropdown(!showHistoryDropdown)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl neu-flat text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-white transition-all cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Clear Chat</span>
+              <History className="w-3.5 h-3.5 text-blue-500" />
+              <span>Past Sessions ({conversations.length})</span>
             </button>
-          )}
+
+            {showHistoryDropdown && (
+              <div className="absolute top-10 left-0 w-72 max-h-80 overflow-y-auto bg-white dark:bg-[#181f2e] border border-slate-200 dark:border-[#2a3449] rounded-2xl shadow-2xl z-50 p-2 space-y-1">
+                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Conversation History
+                </div>
+                {conversations.length === 0 ? (
+                  <div className="p-3 text-xs text-slate-400 text-center">No past sessions found</div>
+                ) : (
+                  conversations.map((conv) => (
+                    <div
+                      key={conv.id}
+                      className={`group flex items-center justify-between p-2 rounded-xl text-xs cursor-pointer transition-colors ${
+                        activeConversationId === conv.id
+                          ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold"
+                          : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                      }`}
+                      onClick={() => {
+                        onSelectConversation?.(conv.id);
+                        setShowHistoryDropdown(false);
+                      }}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <MessageSquare className="w-3.5 h-3.5 shrink-0 text-blue-500" />
+                        <span className="truncate">{conv.title}</span>
+                      </div>
+                      {onDeleteConversation && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteConversation(conv.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+
+        {messages.length > 0 && onClearChat && (
+          <button
+            onClick={onClearChat}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg neu-btn-secondary text-xs text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Clear Thread</span>
+          </button>
+        )}
+      </div>
 
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto pr-1 pb-24">
@@ -130,7 +221,15 @@ export function ChatArea({
                     : "neu-flat text-slate-800 dark:text-slate-200"
                 }`}
               >
-                <p className="whitespace-pre-line font-normal leading-relaxed">{msg.content}</p>
+                {msg.role === "assistant" ? (
+                  <div className="prose dark:prose-invert max-w-none text-xs md:text-sm space-y-2 [&_h1]:text-base [&_h1]:font-extrabold [&_h2]:text-sm [&_h2]:font-bold [&_h3]:text-xs [&_h3]:font-bold [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:my-0.5 [&_strong]:text-slate-900 dark:[&_strong]:text-white [&_table]:border-collapse [&_table]:w-full [&_th]:border [&_th]:border-slate-300 dark:[&_th]:border-slate-700 [&_th]:p-1.5 [&_td]:border [&_td]:border-slate-300 dark:[&_td]:border-slate-700 [&_td]:p-1.5 font-normal">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-line font-normal leading-relaxed">{msg.content}</p>
+                )}
 
                 {/* Actions Bar for Assistant Message */}
                 {msg.role === "assistant" && (

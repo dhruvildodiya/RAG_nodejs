@@ -6,10 +6,12 @@ import pool from "../config/db.js";
 export const indexDocument = async (
     userId: string,
     text: string,
-    source: string
+    source: string,
+    visibility: "private" | "org" = "private",
+    organizationId: string | null = null
 ) => {
     try {
-        console.log(`Starting indexing for user: ${userId}, source: ${source}`);
+        console.log(`Starting indexing for user: ${userId}, scope: ${visibility}, org: ${organizationId}, source: ${source}`);
 
         if (!text || text.trim().length === 0) {
             throw new Error("Cannot index document with empty text.");
@@ -20,25 +22,27 @@ export const indexDocument = async (
 
         // Include document source header in each chunk so semantic vector search can match queries referencing document/source names or generic summaries
         const contents = chunks.map((chunk, index) => {
-          const header = `[Document: "${source}" | Part ${index + 1}/${chunks.length}]`;
+          const header = `[Document: "${source}" | Scope: ${visibility} | Part ${index + 1}/${chunks.length}]`;
           return `${header}\n${chunk!.pageContent}`;
         });
 
-        console.log("Contents:", contents);
+        console.log("Contents length:", contents.length);
         const embeddings = await getEmbedding(contents);
 
         const userIds = contents.map(() => userId);
         const sources = contents.map(() => source);
+        const visibilities = contents.map(() => visibility);
+        const orgIds = contents.map(() => organizationId);
 
         // Convert embeddings to proper vector format for PostgreSQL
         const embeddingVectors = embeddings.map(embedding => `[${embedding.join(',')}]`);
         
         await pool.query(
             `
-  INSERT INTO documents (user_id, content, embedding, source)
-  SELECT * FROM UNNEST ($1::text[], $2::text[], $3::vector[], $4::text[])
+  INSERT INTO documents (user_id, content, embedding, source, visibility, organization_id)
+  SELECT * FROM UNNEST ($1::text[], $2::text[], $3::vector[], $4::text[], $5::text[], $6::text[])
   `,
-            [userIds, contents, embeddingVectors, sources]
+            [userIds, contents, embeddingVectors, sources, visibilities, orgIds]
         );
 
         console.log("Indexing completed successfully.");
@@ -46,6 +50,7 @@ export const indexDocument = async (
             success: true,
             message: "Document indexed successfully",
             chunks: chunks.length,
+            visibility,
         };
 
     } catch (error: any) {

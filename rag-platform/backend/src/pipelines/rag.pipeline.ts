@@ -13,7 +13,9 @@ const isGreeting = (text: string): boolean => {
 
 const askQuestion = async (
   question: string,
-  userId: string
+  userId: string,
+  scope: "individual" | "org" = "individual",
+  organizationId?: string | null
 ) => {
   // Check if user is sending a basic greeting
   if (isGreeting(question)) {
@@ -22,7 +24,7 @@ const askQuestion = async (
   }
 
   // 1. Retrieve related chunks from vector DB
-  const chunks = await retrieveRelatedChunks(question, userId);
+  const chunks = await retrieveRelatedChunks(question, userId, scope, organizationId);
 
   if (!chunks || chunks.length === 0) {
     return {

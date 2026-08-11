@@ -4,12 +4,15 @@ import cors from "cors";
 import uploadRoutes from "./routes/upload.route.js";
 import askRoutes from "./routes/ask.route.js";
 import documentRoutes from "./routes/documents.route.js";
+import authRoutes from "./routes/auth.route.js";
+import conversationRoutes from "./routes/conversation.route.js";
+import { optionalAuthenticateJWT } from "./middleware/auth.middleware.js";
+
 const app = express();
 
 app.use(cors({
   origin: [
      "http://localhost:3000", 
-    // "http://127.0.0.1:3000",
     "https://rag-nodejs.vercel.app"
   ],
   credentials: true
@@ -23,9 +26,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api", uploadRoutes);
-app.use("/api", askRoutes);
-app.use("/api", documentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api", optionalAuthenticateJWT, uploadRoutes);
+app.use("/api", optionalAuthenticateJWT, askRoutes);
+app.use("/api", optionalAuthenticateJWT, documentRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("API running 🚀");

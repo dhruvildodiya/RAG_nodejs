@@ -8,6 +8,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   OPENROUTER_API_KEY: z.string().min(1, "OPENROUTER_API_KEY is required"),
+  JWT_SECRET: z.string().default("default_rag_platform_jwt_secret_key_12345"),
   SERVER_URL: z.string().optional(),
 });
 
