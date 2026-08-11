@@ -18,10 +18,14 @@ export const indexDocument = async (
         const chunks = await splitText(text);
         console.log(`Docs Chunked: ${chunks.length} chunks generated.`);
 
-      
-        const contents = chunks.map((chunk) => chunk!.pageContent)
+        // Include document source header in each chunk so semantic vector search can match queries referencing document/source names or generic summaries
+        const contents = chunks.map((chunk, index) => {
+          const header = `[Document: "${source}" | Part ${index + 1}/${chunks.length}]`;
+          return `${header}\n${chunk!.pageContent}`;
+        });
+
         console.log("Contents:", contents);
-        const embeddings = await getEmbedding(contents)
+        const embeddings = await getEmbedding(contents);
 
         const userIds = contents.map(() => userId);
         const sources = contents.map(() => source);

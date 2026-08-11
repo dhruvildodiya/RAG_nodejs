@@ -34,13 +34,11 @@ const askQuestion = async (
   // 2. Rerank chunks while keeping metadata
   const rerankedChunks = simpleRerank(question, chunks);
 
-  // 3. Filter chunks with a minimum similarity threshold or top match
-  // Only include chunks with similarity score > 0.35 or the best single match if relevant
-  const relevantChunks = rerankedChunks.filter((c) => c.score >= 0.35);
-  const topChunk = rerankedChunks[0];
+  // 3. Include top relevant chunks (up to 5) so summary and broad queries receive sufficient document context
+  const relevantChunks = rerankedChunks.filter((c) => c.score >= 0.15);
   const chunksToUse = relevantChunks.length > 0 
-    ? relevantChunks.slice(0, 3) 
-    : (topChunk && topChunk.score >= 0.25 ? [topChunk] : []);
+    ? relevantChunks.slice(0, 5) 
+    : (rerankedChunks.length > 0 ? rerankedChunks.slice(0, 3) : []);
 
   const context = chunksToUse.map((c) => c.content).join("\n\n");
 

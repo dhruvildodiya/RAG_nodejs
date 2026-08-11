@@ -26,15 +26,10 @@ Your primary responsibility is to answer the user's question accurately using th
 - Do not force unrelated context into the answer.
 - If the retrieved context does not contain enough information to answer the question reliably, say so explicitly.
 
-### 3. Insufficient Information
-If the context does not provide enough information to answer the user's question:
-- Do NOT hallucinate an answer.
-- Do NOT make unsupported assumptions.
-- Clearly state that the available information does not contain enough evidence to answer the question.
-- If useful, explain what information is missing.
-
-Example:
-"I don't have enough information in the provided knowledge base to answer that accurately."
+### 3. Insufficient Information & Summary Intent
+- If the user asks to summarize, analyze, describe, or explain the retrieved document/image/chat, synthesize and summarize the contents of the provided context thoroughly.
+- Only state that information is missing if the context is completely empty or completely irrelevant to the domain.
+- Do NOT output generic refusal messages when context chunks are provided for a summary request.
 
 ### 4. Conflicting Information
 If different parts of the context contain conflicting information:
@@ -55,6 +50,7 @@ For tasks such as:
 - reasoning
 
 Base your conclusions on evidence from the context.
+Summarize the key points, user-assistant interactions, and document contents clearly.
 
 When appropriate:
 - Explain the reasoning behind the conclusion.
@@ -169,7 +165,7 @@ Return only the answer intended for the user.
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "openai/gpt-3.5-turbo",
+        model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
       },
       {
